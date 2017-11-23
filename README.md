@@ -1,6 +1,6 @@
 # titanic
 
-#Libraries
+# Libraries
 require(ggplot2)
 require(dplyr)
 require(rpart)
@@ -10,7 +10,7 @@ require(e1071)
 require(randomForest)
 
 
-#Get data
+# Get data
 getwd()
 setwd("C:/Users/LONPT12/Desktop/Training/Data Science Bootcamp 2/Kaggle/Titanic")
 train_set <- read.csv("train.csv")
@@ -22,12 +22,12 @@ str(train_set)
 head(test_set)
 head(train_set)
 
-#Combine data
+# Combine data
 test_set$Survived <- NA
 all_data <- rbind(train_set,test_set)
 summary(all_data)
 
-#explore and transform
+# explore and transform
 #Pclass
 all_data$Pclass <- as.factor(all_data$Pclass)
 str(all_data)
@@ -46,7 +46,7 @@ all_data$Title[all_data$Title %in% rare_titles] <- "Rare Title"
 summary(all_data$Title)
 all_data$Title <- as.factor(all_data$Title)
 
-#Age
+# Age
 hist(all_data$Age)
 all_data$Age_old <- all_data$Age
 head(all_data[,c("Age_old","Age")])
@@ -72,7 +72,7 @@ ggplot(age_data, aes(age, fill = type)) +
 
 all_data <- all_data[,-ncol(all_data)]
 
-#Family
+# Family
 head(all_data)
 all_data$Family <- all_data$SibSp + all_data$Parch + 1
 head(all_data[,c("Family","SibSp","Parch")])
@@ -89,7 +89,7 @@ all_data$FamilyD[all_data$Family > 1 & all_data$Family < 5] <- "Small"
 all_data$FamilyD[all_data$Family > 4] <- "Large"
 all_data$FamilyD <- as.factor(all_data$FamilyD)
 
-#Embarked
+# Embarked
 table(all_data$Embarked)
 all_data[all_data$Embarked=="",]
 
@@ -101,7 +101,7 @@ ggplot(all_data[all_data$Embarked %in% c("C","Q","S"),],aes(x = Embarked,y = Far
 all_data$Embarked[all_data$Embarked==""] <- "C"
 table(all_data$Embarked)
 
-#Fare
+# Fare
 summary(all_data)
 all_data[is.na(all_data$Fare),]
 all_data$Fare[1044] <- median(all_data$Fare[all_data$Embarked=="S" & all_data$Pclass == "3"],na.rm = TRUE)
@@ -112,7 +112,7 @@ head(all_data)
 all_data <- all_data[,-ncol(all_data)]
 all_data$Age <- round(all_data$Age,0)
 
-#model building
+# model building
 train_set <- all_data[!is.na(all_data$Survived),]
 test_set <- all_data[is.na(all_data$Survived),]
 head(test_set)
@@ -122,7 +122,7 @@ set.seed(123)
 train_set_1 <- train_set[1:floor(3*nrow(train_set)/4),]
 train_set_2 <- train_set[nrow(train_set_1):nrow(train_set),]
 
-#feature scaling
+# feature scaling
 
 
 #logistic regression
@@ -131,7 +131,7 @@ log_pred <- predict(log_model,type = "response", newdata = train_set_2[,-1])
 plot(log_model)
 #not good because data not independant or linear
 
-#SVM kernel
+# SVM kernel
 svm_k_model <- svm(factor(Survived)~.,
                    data = train_set_1,
                    type = "C-classification",
@@ -142,7 +142,7 @@ svm_k_cm <- table(train_set_2[,1],svm_k_pred)
 svm_k_cm
 summary(svm_k_model)
 
-#Random Forest
+# Random Forest
 rf_model <- randomForest(x = train_set_1[,-1],
                          y=factor(train_set_1$Survived),
                          ntree = 1000)
